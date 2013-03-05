@@ -348,6 +348,7 @@ class ModelAdmin(BaseModelAdmin):
     save_on_top = False
     paginator = Paginator
     inlines = []
+    readonly_fields = ('pk',)
 
     # Custom templates (designed to be over-ridden in subclasses)
     add_form_template = None
@@ -369,6 +370,12 @@ class ModelAdmin(BaseModelAdmin):
         self.opts = model._meta
         self.admin_site = admin_site
         super(ModelAdmin, self).__init__()
+
+        # Translate pk to the name of the attribute
+        if 'pk' in self.readonly_fields:
+            self.readonly_fields = (tuple([f for f in self.readonly_fields
+                                           if f is not 'pk'])
+                                    + (self.opts.pk.attname, ))
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = []
